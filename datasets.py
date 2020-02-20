@@ -1,7 +1,7 @@
 import os
 import torch
-import torchtext.vocab as Vocab
 import collections
+import torch.nn.functional as F
 from torch.utils.data import Dataset
 
 
@@ -12,15 +12,14 @@ class TextDataset(Dataset):
         self.max_length = max_length
         self.samples = []
         self._init_dataset()
-        self.vocab = self.get_vocab()
-        self.features = self.preprocess_text(self.vocab)
+        self.charset = list(self.get_charset())
 
     def __len__(self):
         return len(self.samples)
 
     def __getitem__(self, idx):
         word = self.samples[idx]
-        return self.preprocess_text(word)
+        return self.to_one_hot(word)
 
     def _init_dataset(self):
         with open('AfterTransfer.txt', 'rb') as b:
@@ -33,17 +32,22 @@ class TextDataset(Dataset):
 
                 self.samples.append(word)
 
-    def get_vocab(self):
+    def get_charset(self):
+        charset = set()
         processed_data = self.samples
-        counter = collections.Counter([tk for st in processed_data for tk in st])
-        return Vocab.Vocab(counter, min_freq=1)
+        for word in processed_data:
+            for i in range(self.max_length):
+                charset.add(word[i])
+        return charset
 
-    def preprocess_text(self, vocab):
-        processed_data = self.samples
-        self.vocab = vocab
-        print(vocab)
-        features_sample = torch.tensor([[vocab.stoi[word] for word in words] for words in processed_data])
-        return features_sample
+    def to_one_hot(self, word):
+        data_to_use = self.charset
+        n = len(data_to_use)
+        index = []
+        for char in word:
+            index.append(data_to_use.index(char))
+        convert_torch = torch.LongTensor(index)
+        return F.one_hot(convert_torch, num_classes=n)
 
 
 if __name__ == '__main__':

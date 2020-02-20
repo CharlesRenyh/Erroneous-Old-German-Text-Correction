@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
 
-embedding_dim = 25
-encode_embedding = nn.Embedding(75, embedding_dim)
-decode_embedding = nn.Embedding(embedding_dim, 75)
+embedding_dim = 16
+encode_embedding = nn.Embedding(62, embedding_dim)
+decode_embedding = nn.Embedding(embedding_dim, 62)
 
 
 class EncoderRNN(nn.Module):
@@ -23,7 +23,7 @@ class EncoderRNN(nn.Module):
         c0 = tt.randn(self.num_layers, input.size(0), self.hidden_size)
         after_encoding, hidden = self.lstm(input, (h0, c0))
         encoded_content = self.relu(after_encoding)
-        return encoded_content
+        return encoded_content.long()
 
 
 class DecoderRNN(nn.Module):
@@ -43,7 +43,7 @@ class DecoderRNN(nn.Module):
         c0 = tt.randn(self.num_layers, encoded_input.size(0), self.output_size)
         decoded_output, hidden = self.lstm(encoded_input, (h0, c0))
         decoded_output = self.softmax(decoded_output)
-        return decoded_output
+        return decoded_output.long()
 
 
 class LSTMAE(nn.Module):

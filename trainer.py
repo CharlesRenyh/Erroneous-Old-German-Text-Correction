@@ -17,7 +17,9 @@ print_interval = 100
 dataset = TextDataset(data_root, max_length)
 dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
-input_size = 64
+losses = deque([], maxlen=print_interval)
+
+input_size = 62
 output_size = 16
 model = LSTMAE(input_size, output_size, num_layers=1, isCuda=False)
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
@@ -30,15 +32,16 @@ for epoch in range(num_epochs):
 
         model.zero_grad()
         word = samples
-        print(word)
 
         loss = 0.
 
-        for char_i in range(max_length-1):
-            inputs = torch.randn(6, max_length, input_size)
-            output = model(inputs)
-            targets = inputs[0].clone().long()
-            loss += loss_func(output, targets)
+        for i in range(max_length-1):
+            t_char = word[i]
+            t_char = t_char.unsqueeze(0)
+            output = model(t_char)
+            target = t_char.clone().squeeze()
+            target = target
+            loss += loss_func(output, target)
 
         losses.append(loss.item())
         loss.backward()
