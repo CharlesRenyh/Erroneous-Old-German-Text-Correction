@@ -35,10 +35,10 @@ for epoch in range(num_epochs):
 
         loss = 0.
         for i in range(max_length):
-            t_char = word[i].view(6, -1, 62)
-            output = model(t_char.float())
-            target = t_char.clone().squeeze()
-            loss += loss_func(output, target.long())
+            t_char = word[i]
+            output = model(t_char.view(6,-1,62))
+            target = t_char.clone()
+            loss += loss_func(output, target)
 
             losses.append(loss.item())
             loss.backward()

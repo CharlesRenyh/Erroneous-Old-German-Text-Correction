@@ -19,6 +19,7 @@ class EncoderRNN(nn.Module):
 
     def forward(self, input):
         tt = torch.cuda if self.isCuda else torch
+        embeds = self.embedding(input)
         h0 = tt.randn(self.num_layers, input.size(0), self.hidden_size)
         c0 = tt.randn(self.num_layers, input.size(0), self.hidden_size)
         after_encoding, hidden = self.lstm(input, (h0, c0))
@@ -32,7 +33,6 @@ class DecoderRNN(nn.Module):
         self.hidden_size = hidden_size
         self.output_size = output_size
         self.num_layers = num_layers
-        self.embedding = decode_embedding
         self.isCuda = isCuda
         self.lstm = nn.LSTM(hidden_size, output_size, num_layers, batch_first=True)
         self.softmax = nn.Softmax(dim=1)

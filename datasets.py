@@ -44,7 +44,6 @@ class TextDataset(Dataset):
     def to_one_hot(self, word):
         data_to_use = self.charset
         n = len(data_to_use)
-        print(n)
         index = []
         for char in word:
             index.append(data_to_use.index(char))
