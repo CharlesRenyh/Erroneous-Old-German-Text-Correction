@@ -3,6 +3,7 @@ import torch
 import collections
 import torch.nn.functional as F
 from torch.utils.data import Dataset
+from torch.utils.data import DataLoader
 
 
 class TextDataset(Dataset):
@@ -43,20 +44,26 @@ class TextDataset(Dataset):
     def to_one_hot(self, word):
         data_to_use = self.charset
         n = len(data_to_use)
+        print(n)
         index = []
         for char in word:
             index.append(data_to_use.index(char))
         convert_torch = torch.LongTensor(index)
-        return F.one_hot(convert_torch, num_classes=n)
+        one_hot = F.one_hot(convert_torch, num_classes=n)
+        return one_hot
 
 
 if __name__ == '__main__':
-    from torch.utils.data import DataLoader
     data_root = 'Data/'
     max_length = 6
     dataset = TextDataset(data_root, max_length)
-    print(dataset[100])
+    print(dataset[2])
 
     dataloader = DataLoader(dataset, batch_size=10, shuffle=True)
-    print(next(iter(dataloader)))
+    #print(next(iter(dataloader)))
 
+'''
+input(seq_len, batch, input_size) 
+h0(num_layers * num_directions, batch, hidden_size) 
+c0(num_layers * num_directions, batch, hidden_size)
+'''

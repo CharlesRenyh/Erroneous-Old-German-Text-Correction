@@ -20,8 +20,8 @@ dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 losses = deque([], maxlen=print_interval)
 
 input_size = 62
-output_size = 16
-model = LSTMAE(input_size, output_size, num_layers=1, isCuda=False)
+hidden_size = 16
+model = LSTMAE(input_size, hidden_size, num_layers=1, isCuda=False)
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 loss_func = nn.CrossEntropyLoss()
 
@@ -34,16 +34,13 @@ for epoch in range(num_epochs):
         word = samples
 
         loss = 0.
-
-        for i in range(max_length-1):
-            t_char = word[i]
-            t_char = t_char.unsqueeze(0)
-            output = model(t_char)
+        for i in range(max_length):
+            t_char = word[i].view(6, -1, 62)
+            output = model(t_char.float())
             target = t_char.clone().squeeze()
-            target = target
-            loss += loss_func(output, target)
+            loss += loss_func(output, target.long())
 
-        losses.append(loss.item())
-        loss.backward()
-        optimizer.step()
+            losses.append(loss.item())
+            loss.backward()
+            optimizer.step()
 
