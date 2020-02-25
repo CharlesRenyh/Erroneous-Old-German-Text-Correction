@@ -29,18 +29,21 @@ losses = deque([], maxlen=print_interval)
 
 for epoch in range(num_epochs):
     for batch_i, samples in enumerate(dataloader):
-
         model.zero_grad()
-        word = samples
+        word_set = samples
+        #print(word_set.size())
 
         loss = 0.
-        for i in range(max_length):
-            t_char = word[i]
-            output = model(t_char.view(6,-1,62))
-            target = t_char.clone()
+
+        for word_ind in range(batch_size):
+            word = word_set[word_ind]
+            #print(t_char)
+
+            output = model(word)
+            target = word.clone()
+            #print(target)
             loss += loss_func(output, target)
 
-            losses.append(loss.item())
-            loss.backward()
-            optimizer.step()
-
+        losses.append(loss.item())
+        loss.backward()
+        optimizer.step()

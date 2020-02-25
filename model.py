@@ -22,7 +22,7 @@ class EncoderRNN(nn.Module):
         embeds = self.embedding(input)
         h0 = tt.randn(self.num_layers, input.size(0), self.hidden_size)
         c0 = tt.randn(self.num_layers, input.size(0), self.hidden_size)
-        after_encoding, hidden = self.lstm(input, (h0, c0))
+        after_encoding, hidden = self.lstm(embeds.view(6, -1, 62), (h0, c0))
         encoded_content = self.relu(after_encoding)
         return encoded_content
 
