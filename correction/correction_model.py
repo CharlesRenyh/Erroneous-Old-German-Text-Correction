@@ -1,11 +1,9 @@
-import random
-from typing import Tuple
-
 import torch.nn as nn
-import torch.optim as optim
-import torch.nn.functional as F
 from torch import Tensor
-
+import torch
+import torch.nn.functional as F
+import torch.optim as optim
+import random
 
 class Encoder(nn.Module):
     def __init__(self,
@@ -31,7 +29,7 @@ class Encoder(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
     def forward(self,
-                src: Tensor) -> Tuple[Tensor]:
+                src: Tensor):
 
         embedded = self.dropout(self.embedding(src))
 
@@ -122,7 +120,7 @@ class Decoder(nn.Module):
     def forward(self,
                 input: Tensor,
                 decoder_hidden: Tensor,
-                encoder_outputs: Tensor) -> Tuple[Tensor]:
+                encoder_outputs: Tensor):
 
         input = input.unsqueeze(0)
 
@@ -183,8 +181,8 @@ class Seq2Seq(nn.Module):
         return outputs
 
 
-INPUT_DIM = len(SRC.vocab)
-OUTPUT_DIM = len(TRG.vocab)
+# INPUT_DIM = len(SRC.vocab)
+# OUTPUT_DIM = len(TRG.vocab)
 # ENC_EMB_DIM = 256
 # DEC_EMB_DIM = 256
 # ENC_HID_DIM = 512
@@ -200,16 +198,17 @@ DEC_HID_DIM = 64
 ATTN_DIM = 8
 ENC_DROPOUT = 0.5
 DEC_DROPOUT = 0.5
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-enc = Encoder(INPUT_DIM, ENC_EMB_DIM, ENC_HID_DIM, DEC_HID_DIM, ENC_DROPOUT)
+enc = Encoder(5000, ENC_EMB_DIM, ENC_HID_DIM, DEC_HID_DIM, ENC_DROPOUT)
 
 attn = Attention(ENC_HID_DIM, DEC_HID_DIM, ATTN_DIM)
 
-dec = Decoder(OUTPUT_DIM, DEC_EMB_DIM, ENC_HID_DIM, DEC_HID_DIM, DEC_DROPOUT, attn)
+dec = Decoder(5000, DEC_EMB_DIM, ENC_HID_DIM, DEC_HID_DIM, DEC_DROPOUT, attn)
 
 model = Seq2Seq(enc, dec, device).to(device)
 
-
+# print(model)
 def init_weights(m: nn.Module):
     for name, param in m.named_parameters():
         if 'weight' in name:
@@ -221,10 +220,12 @@ def init_weights(m: nn.Module):
 model.apply(init_weights)
 
 optimizer = optim.Adam(model.parameters())
+# a = torch.LongTensor([[1,2,3,4,5]])
+# b = torch.LongTensor([[2,3,4,5,6,7]])
+# print(model(a,b).size())
 
-
-def count_parameters(model: nn.Module):
-    return sum(p.numel() for p in model.parameters() if p.requires_grad)
-
-
-print(f'The model has {count_parameters(model):,} trainable parameters')
+# def count_parameters(model: nn.Module):
+#     return sum(p.numel() for p in model.parameters() if p.requires_grad)
+#
+#
+# print(f'The model has {count_parameters(model):,} trainable parameters')

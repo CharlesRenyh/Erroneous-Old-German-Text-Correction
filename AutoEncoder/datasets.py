@@ -29,7 +29,7 @@ class TextDataset(Dataset):
         return item
 
     def _init_dataset(self):
-        with open('AfterTransfer.txt', 'rb') as b:
+        with open('../AfterTransfer.txt', 'rb') as b:
             for sentence in b.read().decode("utf-8", "ignore").splitlines():
 
                 if len(sentence) > self.max_length:
@@ -65,7 +65,6 @@ if __name__ == '__main__':
     data_root = 'Data/'
     max_length = 50
     dataset = TextDataset(data_root, max_length)
-    print(dataset[10])
 
     dataloader = DataLoader(dataset, batch_size=10, shuffle=True)
     print(next(iter(dataloader)))

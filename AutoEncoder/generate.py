@@ -12,20 +12,20 @@ def generate(word, dataset, model):
     new_word = []
     model.eval()
 
-    t_word = dataset.to_one_hot(word)
-
+    # t_word = dataset.to_one_hot(word)
+    t_word = torch.LongTensor(word).view(1,1)
     for _ in range(dataset.max_length):
-        t_char = model(t_word)[_]
+        t_char = model(t_word)[:, -1, :]
 
         char_idx = t_char.argmax(dim=1)
-        new_char = dataset.charset[char_idx]
+        new_char = dataset.charset[char_idx.item()]
 
         if new_char == '\0':
             break
         else:
-            new_word += new_char
-            t_char = dataset.to_one_hot(new_char)
-
+            new_word.append(new_char)
+            # t_char = dataset.to_one_hot(new_char)
+            t_word = torch.cat([t_word, char_idx.view(1, 1)], dim=1)
     return new_word
 
 
